@@ -1,5 +1,7 @@
 import { useEffect, useContext } from 'react'
 import style from './index.less'
+import { isDev } from "@/utils/env"
+
 
 
 const IframePage: React.FC<{url: string, domLoad: ({domNodes}: {
@@ -21,8 +23,7 @@ const IframePage: React.FC<{url: string, domLoad: ({domNodes}: {
       return;
     }
 
-    const idDev = true;
-    if (idDev) {
+    if (isDev) {
       const doms = event.source.sonDoms
       domLoad({
         domNodes: doms
@@ -30,8 +31,6 @@ const IframePage: React.FC<{url: string, domLoad: ({domNodes}: {
     } else {
       const data = JSON.parse(event.data)
       const { doms } = data
-      console.log('0000000', data)
-      console.log(doms)
       if (doms) {
         domLoad({
           domNodes: doms

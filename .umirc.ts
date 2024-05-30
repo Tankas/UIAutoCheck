@@ -7,4 +7,6 @@ export default defineConfig({
   base: '/check/',
   publicPath: '/check/',
   npmClient: 'npm',
+  jsMinifier: 'terser',
+  cssMinifier: 'cssnano',
 });

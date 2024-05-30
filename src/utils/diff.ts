@@ -1,7 +1,7 @@
 
-// @ts-nocheck
+import { IFigmaNode, IDomNode, IScoreInfo } from '@/types/index'
 
-export function parseFigmaURL(url) {  
+export function parseFigmaURL(url: string) {  
   // 使用URL类来解析传入的url参数  
   const parsedUrl = new URL(url);  
   
@@ -22,7 +22,7 @@ export function parseFigmaURL(url) {
   };  
 } 
 
-const getScoreByX = (points, value) => {
+const getScoreByX = (points: any, value: any) => {
   for (let i = 0; i < points.length - 1; i++) {  
     // 找到 value 所在的 x 坐标段  
     if (value >= points[i].x && value <= points[i + 1].x) {  
@@ -40,7 +40,7 @@ const getScoreByX = (points, value) => {
 }
 
 // 计算两个数值之间的相对差异，返回 0 到 1 之间的得分（1 表示完全相同，0 表示完全不同）y = ax + b
-function calculateDifferenceScore(value1, value2, maxDifference) {
+function calculateDifferenceScore(value1: number, value2: number, slot: any) {
   const points = [
     {
       x: 0,
@@ -71,8 +71,13 @@ function calculateDifferenceScore(value1, value2, maxDifference) {
   //   return 0;
   // }
 }
-
-const calculateBorderRadiusScore = (dom, figNode, config) => {
+/**
+ * border Radius 得分单独的得分机制
+ * @param dom 
+ * @param figNode 
+ * @returns 
+ */
+const calculateBorderRadiusScore = (dom: IDomNode, figNode: IFigmaNode) => {
   const { borderRadius } = dom.cssStyle
   const borderRadiusValue = +window.parseFloat(borderRadius).toFixed(2)
   const figBorderRadiusValue = +window.parseFloat(figNode.cornerRadius).toFixed(2)
@@ -99,9 +104,16 @@ const calculateBorderRadiusScore = (dom, figNode, config) => {
  * @param maxDiff 
  * @returns 
  */
-export function calculateScore(figmaNode, domNode, config) {
+export function calculateScore(figmaNode: IFigmaNode, domNode:IDomNode, config: any) {
   let score = 0;
-  const info = {}
+  const info: IScoreInfo = {
+    widthScore: 0,
+    heightScore: 0,
+    topScore: 0,
+    leftScore: 0,
+    borderRadiusScore: 0,
+    totalScore: 0,
+  }
   // dom节点，里面都是文本，宽高特殊处理
   const isTextElement = domNode.textElementType;
 
@@ -132,8 +144,6 @@ export function calculateScore(figmaNode, domNode, config) {
   score += leftScore;
   
   // 计算 css border radius
-
-
   const borderRadiusScore = calculateBorderRadiusScore(domNode, figmaNode)
   info.borderRadiusScore = borderRadiusScore;
   score += borderRadiusScore
@@ -150,7 +160,7 @@ export function calculateScore(figmaNode, domNode, config) {
  *  文本节点，宽度默认正确，无法和UI对其
  * 3. top left 得分不能低于 各自项最高得分的10%
  */
-const isMatchScoreStandard = (info) => {
+const isMatchScoreStandard = (info: IScoreInfo) => {
   const { totalScore, widthScore, heightScore, topScore, leftScore } = info;
   if (totalScore >= 30) {
     return true;
@@ -170,7 +180,7 @@ const isMatchScoreStandard = (info) => {
  * @param DomTypeArr 
  * @returns 
  */
-const getHighestScoreDom = (figmaNode, DomTypeArr) => {
+const getHighestScoreDom = (figmaNode: IFigmaNode, DomTypeArr: IDomNode[]) => {
   let score = 0;
   let bestMatch = null;
   DomTypeArr.forEach((dom) => {
@@ -184,21 +194,21 @@ const getHighestScoreDom = (figmaNode, DomTypeArr) => {
 }
 
 export type FigmaMapNode = {
-  score: number,
-  info: any,
-  figmaNode: any
+  score: number;
+  info: IScoreInfo;
+  figmaNode: IFigmaNode;
 }
 
 /**
  * 每一个dom figmaNodeMap 存储所有figmaNode的得分
- * @param NodeTypeArr 
- * @param DomTypeArr 
+ * @param figmaNodes 
+ * @param domNodes 
  * @param config 
  */
-const addMap = (NodeTypeArr, DomTypeArr, config) => {
-  DomTypeArr.forEach((dom) => {
+const addFigmaNodeMap = (figmaNodes: IFigmaNode[], domNodes: IDomNode[], config: any) => {
+  domNodes.forEach((dom) => {
     dom.figmaNodeMap = {};
-    NodeTypeArr.forEach((figmaNode) => {
+    figmaNodes.forEach((figmaNode) => {
       let { score, info } = calculateScore(figmaNode, dom, config);
       dom.figmaNodeMap[figmaNode.id] = {
         score,
@@ -216,7 +226,7 @@ const addMap = (NodeTypeArr, DomTypeArr, config) => {
  * @param DomTypeArr 
  * @returns {figmaNode}
  */
-const matchBestFigmaNodeToDom = (dom, DomTypeArr) => {
+const matchBestFigmaNodeToDom = (dom: IDomNode, DomTypeArr: IDomNode[]) : FigmaMapNode | any => {
   const nodes: FigmaMapNode[] = Object.values(dom.figmaNodeMap)
   nodes.sort((a: FigmaMapNode, b: FigmaMapNode) => {  
     return b.score - a.score; // 降序排序  
@@ -259,12 +269,17 @@ const matchBestFigmaNodeToDom = (dom, DomTypeArr) => {
   return {}
 }
 
-
-export const equal = (node: any, dom: any) => {
+/**
+ * 判断 figmaNode node 是否一致
+ * @param node figmaNode
+ * @param dom domNode
+ * @returns 
+ */
+export const equal = (node: any, dom: any, errorRange = 1) => {
+  // 是否可以以满分来判断？？
   const { width: domWidth, height: domHeight, top: domTop, left: domLeft } = dom;
   const { width: nodeWidth, height: nodeHeight, top: nodeTop, left: nodeLeft } = node;
-  
-  const errorRange = 1;
+
   if (!dom.textElementType && Math.abs(domWidth - nodeWidth) > errorRange) {
     return false
   }
@@ -280,9 +295,81 @@ export const equal = (node: any, dom: any) => {
   return true
 }
 
-export const matchBest = (NodeTypeArr, DomTypeArr, config) => {
-  // 每一个dom存储所有figmaNode的得分
-  addMap(NodeTypeArr, DomTypeArr, config)
+
+/**
+ * 叶子结点，显示在页面上的，没有被匹配到的
+ * @param domNodes 
+ * @returns 
+ */
+const getNotMatchedDoms = (domNodes: IDomNode[]) => {
+  const notMatchedDoms = domNodes.filter((v) => {
+    // 过滤掉非叶子结点
+    if (v.childElementCount !== 0) {
+      return false
+    }
+    if (v.height === 0 || v.width === 0) {
+      return false
+    }
+    // 匹配到的
+    if (v.figmaNode) {
+      return false
+    }
+    return true
+  })
+  return {
+    notMatchedDoms
+  }
+}
+/**
+ * 获取被match的doms 包括完全正确的 和 属性值错误的
+ * @param figmaNodes 
+ * @param domNodes 
+ * @returns 
+ */
+const getMatchedDoms = (figmaNodes: IFigmaNode[], domNodes: IDomNode[]) => {
+  const rightDoms: IDomNode[] = [];
+  const errorDoms: IDomNode[] = [];
+  figmaNodes.forEach((node: any) => {
+    const dom: any = domNodes.find(item => item.id === node.id);
+    if (!dom) {
+      // console.log('当前node没有找到匹配到的dom', node)
+    } else if (equal(node, dom)) {
+      rightDoms.push(dom)        
+    } else {
+      errorDoms.push(dom)
+    }
+  })
+  return {
+    rightDoms,
+    errorDoms
+  }
+}
+
+export const diff = (figmaNodes: IFigmaNode[], domNodes: IDomNode[], config: any) => {
+  // 给所有的dom配置属性
+  addFigmaNodeMap(figmaNodes, domNodes, config)
+  //
+  setFigmaInfoToDom(domNodes)
+  // 取出所有匹配正确的
+  const { rightDoms, errorDoms } = getMatchedDoms(figmaNodes, domNodes)
+  // 取出有得分但属性错误的
+  // 取出完全对不上的
+  const { notMatchedDoms } = getNotMatchedDoms(domNodes);
+  // 再匹配一次
+  setFigmaInfoToDom(notMatchedDoms)
+  const { rightDoms: rightDoms2, errorDoms: errorDoms2 } = getMatchedDoms(figmaNodes, notMatchedDoms)
+
+  return {
+    rightDoms: [...rightDoms, ...rightDoms2],
+    errorDoms: [...errorDoms, ...errorDoms2]
+  }
+}
+/**
+ * 如果dom 有最佳匹配的figma 就赋值figmaNode 信息
+ * @param DomTypeArr 
+ * @returns 
+ */
+export const setFigmaInfoToDom = (DomTypeArr: IDomNode[]) => {
   for (let i = 0; i < DomTypeArr.length; i++) {
     const dom = DomTypeArr[i];
     const { figmaNode, info, score } = matchBestFigmaNodeToDom(dom, DomTypeArr)
@@ -298,23 +385,6 @@ export const matchBest = (NodeTypeArr, DomTypeArr, config) => {
   return DomTypeArr
 }
 
-// 再匹配一次
-export const matchBestAgain = (NodeTypeArr, DomTypeArr, config) => {
-  // 每一个dom存储所有figmaNode的得分
-  for (let i = 0; i < DomTypeArr.length; i++) {
-    const dom = DomTypeArr[i];
-    const { figmaNode, info, score } = matchBestFigmaNodeToDom(dom, DomTypeArr)
-    if (figmaNode) {
-      figmaNode.hasMatch = true;
-      dom.id = figmaNode.id;
-      dom.score = score;
-      dom.name = figmaNode.name;
-      dom.info = info
-      dom.figmaNode = figmaNode
-    }
-  }
-  return DomTypeArr
-}
 
 
 

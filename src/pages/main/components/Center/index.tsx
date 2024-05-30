@@ -9,7 +9,7 @@ import { useConfigContext } from '@/Hooks/models/useConfigContext'
 
 import { IDomNode } from '@/types'
 import { useNodeTree } from '../../Hooks/useNodeTree'
-import { matchBest, matchBestAgain, equal} from '@/utils/diff'
+import { diff } from '@/utils/diff'
 
 import { useNodeContext } from '@/Hooks/models/useNodeContext'
 import DomTable from '../DomTable'
@@ -29,57 +29,20 @@ const Center = () => {
   const canUse = domTree.length === 0;
 
   const diffCheck = async () => {
-
     // 1 v 1 匹配
-    let newDomTree = matchBest(nodeTree, domTree, weightConfig)
-    console.log('-----模拟匹配dom树-----')
-    console.table(newDomTree)
-    
-    const tempRightDoms: any[] = []
-    const tempErrorDoms: any[] = []
-
-    // diff
-    nodeTree.forEach((node: any) => {
-
-      const dom: any = newDomTree.find(item => item.id === node.id);
-      
-      if (!dom) {
-        // console.log('当前node没有找到匹配到的dom', node)
-      } else if (equal(node, dom)) {
-        tempRightDoms.push(dom)        
-      } else {
-        tempErrorDoms.push(dom)
-      }
-    })
-    // 未被匹配到的dom 叶子元素
-    const tempBlanksDoms = newDomTree.filter((v) => {
-      // 过滤掉非叶子结点
-      if (v.childElementCount !== 0) {
-        return false
-      }
-      if (v.height === 0 || v.width === 0) {
-        return false
-      }
-      // 匹配到的
-      if (v.figmaNode) {
-        return false
-      }
-      return true
-    })
-
-    matchBestAgain(nodeTree, tempBlanksDoms, weightConfig)
-
-    console.log('tempRightDoms', tempRightDoms)
+    let { rightDoms, errorDoms } = diff(nodeTree, domTree, weightConfig)
 
     nodesDispatch({
       type: 'updateState',
       payload: {
-        rightNodes: tempRightDoms,
-        errorNodes: tempErrorDoms,
+        rightNodes: rightDoms,
+        errorNodes: errorDoms,
         showRightNodes: false,
         showErrorNodes: false
       }
     })
+
+    alert('对比完成')
 
   }
 

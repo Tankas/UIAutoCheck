@@ -3,10 +3,6 @@
 
 import axios from "axios";
 
-export const personalAccessToken = ''
-
-
-
 export function parseFigmaURL(url) {  
   // 使用URL类来解析传入的url参数  
   const parsedUrl = new URL(url);  
