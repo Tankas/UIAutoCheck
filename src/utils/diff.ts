@@ -1,6 +1,8 @@
 
 import { IFigmaNode, IDomNode, IScoreInfo } from '@/types/index'
 
+import { calculateBorderRadiusScore, calculateFontSizeScore, calculateFontWeightScore } from './calculateScore'
+
 export function parseFigmaURL(url: string) {  
   // 使用URL类来解析传入的url参数  
   const parsedUrl = new URL(url);  
@@ -71,30 +73,6 @@ function calculateDifferenceScore(value1: number, value2: number, slot: any) {
   //   return 0;
   // }
 }
-/**
- * border Radius 得分单独的得分机制
- * @param dom 
- * @param figNode 
- * @returns 
- */
-const calculateBorderRadiusScore = (dom: IDomNode, figNode: IFigmaNode) => {
-  const { borderRadius } = dom.cssStyle
-  const borderRadiusValue = +window.parseFloat(borderRadius).toFixed(2)
-  const figBorderRadiusValue = +window.parseFloat(figNode.cornerRadius).toFixed(2)
-  if (borderRadiusValue == figBorderRadiusValue) {
-    return 1
-  }
-  // 没有设置 radius
-  if (figBorderRadiusValue == 0) {
-    return 0
-  }
-
-  const score = 1 - Math.abs(figBorderRadiusValue - borderRadiusValue) / 100
-  if (score < 0) {
-    return 0
-  }
-  return score
-}
 
 
 /**
@@ -113,6 +91,8 @@ export function calculateScore(figmaNode: IFigmaNode, domNode:IDomNode, config: 
     leftScore: 0,
     borderRadiusScore: 0,
     totalScore: 0,
+    fontSizeScore: 0,
+    fontWeightScore: 0,
   }
   // dom节点，里面都是文本，宽高特殊处理
   const isTextElement = domNode.textElementType;
@@ -147,6 +127,18 @@ export function calculateScore(figmaNode: IFigmaNode, domNode:IDomNode, config: 
   const borderRadiusScore = calculateBorderRadiusScore(domNode, figmaNode)
   info.borderRadiusScore = borderRadiusScore;
   score += borderRadiusScore
+  
+  // 计算 font size 
+
+  const fontSizeScore = calculateFontSizeScore(domNode, figmaNode)
+  info.fontSizeScore = fontSizeScore;
+  score += fontSizeScore;
+  // 计算 fontWeight
+  const fontWeightScore = calculateFontWeightScore(domNode, figmaNode)
+  info.fontWeightScore = fontWeightScore;
+  score += fontWeightScore;
+  
+
   info.totalScore = score;
   return {
     score, info
@@ -162,7 +154,7 @@ export function calculateScore(figmaNode: IFigmaNode, domNode:IDomNode, config: 
  */
 const isMatchScoreStandard = (info: IScoreInfo) => {
   const { totalScore, widthScore, heightScore, topScore, leftScore } = info;
-  if (totalScore >= 30) {
+  if (totalScore >= 33) {
     return true;
   } else {
     return false;
@@ -250,6 +242,14 @@ const matchBestFigmaNodeToDom = (dom: IDomNode, DomTypeArr: IDomNode[]) : FigmaM
         // 只处理双向奔赴
         const bestMatchDom = getHighestScoreDom(node.figmaNode, DomTypeArr);
         if (bestMatchDom === dom) {
+          // 如果figma node 的children 和 当前figmaNode的得分一样，则以chilren 优先级更高
+          const sonFigmaId = node.figmaNode.node?.children?.[0].id
+          if (sonFigmaId) {
+            const sonScore = dom.figmaNodeMap[sonFigmaId].score
+            if (sonScore === node.score) {
+              return dom.figmaNodeMap[sonFigmaId]
+            }
+          }
           // 成功匹配，双向
           return node
         }
@@ -279,11 +279,13 @@ export const equal = (node: any, dom: any, errorRange = 1) => {
   // 是否可以以满分来判断？？
   const { width: domWidth, height: domHeight, top: domTop, left: domLeft } = dom;
   const { width: nodeWidth, height: nodeHeight, top: nodeTop, left: nodeLeft } = node;
+  // dom节点，里面都是文本，宽高特殊处理
+  const isTextElement = dom.textElementType;
 
-  if (!dom.textElementType && Math.abs(domWidth - nodeWidth) > errorRange) {
+  if (!isTextElement && Math.abs(domWidth - nodeWidth) > errorRange) {
     return false
   }
-  if (!dom.textElementType &&  Math.abs(domHeight - nodeHeight) > errorRange) {
+  if (Math.abs(domHeight - nodeHeight) > errorRange) {
     return false
   }
   if (Math.abs(domTop - nodeTop) > errorRange) {

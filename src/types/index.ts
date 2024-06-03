@@ -6,6 +6,8 @@ export type IScoreInfo = {
   leftScore: number;
   borderRadiusScore: number;
   totalScore: number;
+  fontSizeScore: number;
+  fontWeightScore: number;
 }
 
 export type IDomNode = {
@@ -18,7 +20,8 @@ export type IDomNode = {
   top: any;
   cssStyle: {
     borderRadius: any;
-  },
+    fontStyle?: IFontStyle;
+  };
   node?: any; // dom 节点 开发环境调试用
   figmaNode?: IFigmaNode; // 对应的figmaNode节点
   figmaNodeMap?: any; // 单个dom 对于所有所有figmaNode节点信息
@@ -26,6 +29,12 @@ export type IDomNode = {
   score?: number; // 得分
   name?: string; // figma Node name 暂时不用
   info?: IScoreInfo;
+}
+// 文本属性
+export type IFontStyle = {
+  fontFamily: string;
+  fontSize: string;
+  fontWeight: string;
 }
 
 export type IFigmaNode = {
@@ -40,4 +49,5 @@ export type IFigmaNode = {
   cornerRadius: string; // '1px'
   node: any; // 节点本身
   hasMatch?: any;
+  fontStyle?: IFontStyle;
 }

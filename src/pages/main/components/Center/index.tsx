@@ -98,7 +98,7 @@ const Center = () => {
           }
         </div>
         <div className="preview">
-          <Preview></Preview>
+          {/* <Preview></Preview> */}
         </div>
       </div>
       

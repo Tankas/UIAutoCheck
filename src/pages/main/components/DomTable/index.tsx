@@ -14,6 +14,13 @@ interface DataType {
   figmaProp: string;
 }
 
+
+const isEqual = (a: number | string, b: number | string) => {
+  const numberA = +window.parseFloat(a).toFixed(2);
+  const numberB = +window.parseFloat(b).toFixed()
+  return numberA === numberB
+}
+
 const columns: TableProps<DataType>['columns'] = [
   {
     title: '',
@@ -27,7 +34,7 @@ const columns: TableProps<DataType>['columns'] = [
     key: 'domProp',
     render: (_, { domProp, figmaProp }) => {
       const style: any = {}
-      if (domProp !== figmaProp) {
+      if (!isEqual(domProp, figmaProp)) {
         style.color = 'red'
       }
       return (
@@ -47,7 +54,15 @@ const DomTable: React.FC<IDomItemTable> = ({
 }) => {
   console.log('DomItemTable', node)
   const { width: domWidth, height: domHeight, top: domTop, left: domLeft } = node;
+  const domFontSize = node?.cssStyle?.fontStyle?.fontSize
+  const domFontWeight = node?.cssStyle?.fontStyle?.fontWeight
   const { width: figmaWidth, height: figmaHeight, top: figmaTop, left: figmaLeft } = node.figmaNode
+  const figmaFontSize = node.figmaNode?.fontStyle?.fontSize
+  const figmaFontWeight = node.figmaNode?.fontStyle?.fontWeight
+
+  // 非文本节点 不显示显示 fontSize 
+  const showFontInfo = !(node.figmaNode.type !== 'TEXT' && !node.figmaNode.fontStyle)
+
   const data: DataType[] = [
     {
       key: '1',
@@ -74,6 +89,21 @@ const DomTable: React.FC<IDomItemTable> = ({
       figmaProp: figmaLeft,
     },
   ];
+  if (showFontInfo) {
+    data.push({
+      key: '5',
+      propName: 'fontSize',
+      domProp: domFontSize,
+      figmaProp: figmaFontSize,
+    })
+    data.push({
+      key: '6',
+      propName: 'fontWeight',
+      domProp: domFontWeight,
+      figmaProp: figmaFontWeight,
+    })
+  }
+
   return (
     <>
      <Table columns={columns} dataSource={data} bordered pagination={false} />

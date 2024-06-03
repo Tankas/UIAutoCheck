@@ -3,6 +3,8 @@
 
 import axios from "axios";
 
+export const personalAccessToken = 'figd_dUNCJtlT6w5LC8o-3y1yTAvJiY5cHdx_E8OJNgiS'
+
 export function parseFigmaURL(url) {  
   // 使用URL类来解析传入的url参数  
   const parsedUrl = new URL(url);  
@@ -46,6 +48,7 @@ const flattenNodes = (node: any, flattenedArray = [], parentAbsolutePosition = {
     name: node.name,
     type: node.type,
     cornerRadius: node.cornerRadius || 0,
+    fontStyle: node.style,
     node
   };
   flattenedArray.push(nodeInfo);
