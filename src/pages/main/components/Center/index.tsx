@@ -77,10 +77,10 @@ const Center = () => {
 
   return (
     <div>
-      <div className="operate">
-        <Button disabled={domTree.length === 0} type="primary" onClick={diffCheck}>对比</Button>
-        <Button disabled={domTree.length === 0} type="primary" onClick={showRightDoms}>显示正确dom</Button>
-        <Button disabled={domTree.length === 0} type="primary" onClick={showErrorDoms}>显示错误dom</Button>
+      <div className={styles.operate}>
+        <Button style={{marginRight: '10px'}} disabled={domTree.length === 0} type="primary" onClick={diffCheck}>对比</Button>
+        <Button style={{marginRight: '10px'}} disabled={domTree.length === 0} type="primary" onClick={showRightDoms}>显示正确dom</Button>
+        <Button style={{marginRight: '10px'}} disabled={domTree.length === 0} type="primary" onClick={showErrorDoms}>显示错误dom</Button>
       </div>
       <div className={styles.views}>
         <div className={styles.pageContainer}>

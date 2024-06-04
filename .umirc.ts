@@ -2,7 +2,15 @@ import { defineConfig } from "umi";
 
 export default defineConfig({
   routes: [
-    { path: "/", component: "main" },
+    {
+      path: "/",
+      component: "wrapper",
+      routes: [
+        { path: "", component: "main" },
+        { path: "/main", component: "main" },
+        { path: "/config", component: "config" },
+      ]
+     },
   ],
   base: '/check/',
   publicPath: '/check/',

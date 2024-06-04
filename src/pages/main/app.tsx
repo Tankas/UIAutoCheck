@@ -1,10 +1,11 @@
 import Center from './components/Center'
 import PropertyConfigPanel from '@/components/PropertyConfigPanel'
+import ConfigPanel from './components/ConfigPanel'
+import Header from './components/Header'
 
 const App = () => {
   return (
     <div>
-      <PropertyConfigPanel></PropertyConfigPanel>
       <Center></Center>
     </div>
   )
