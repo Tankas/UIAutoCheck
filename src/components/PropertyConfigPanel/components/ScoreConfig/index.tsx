@@ -22,8 +22,9 @@ const ScoreConfig = () => {
 
   console.log('scoreConfig', scoreConfig, height)
 
-  const update = () => {
-    dispatch({
+  const update = async () => {
+    // 先render
+    const a =  await dispatch({
       type: 'updateState',
       payload: {
         scoreConfig: {
@@ -37,6 +38,8 @@ const ScoreConfig = () => {
         }
       }
     })
+    // 再执行 
+    alert('已更新，重新对比')
   }
 
   return (

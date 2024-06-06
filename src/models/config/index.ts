@@ -12,6 +12,9 @@ export type IWeightConfig = {
   height: any;
   top: any;
   left: any;
+  borderRadius: any;
+  fontSize: any;
+  fontWeight: any;
 }
 
 export type IDeviceConfig = {

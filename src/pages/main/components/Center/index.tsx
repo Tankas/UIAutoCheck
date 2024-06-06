@@ -20,9 +20,9 @@ import { useUserContext } from '@/Hooks/models/useUserContext';
 
 const Center = () => {
 
-  const { baseConfig, weightConfig, scoreConfig } = useConfigContext()
+  const { baseConfig, weightConfig, scoreConfig, deviceConfig } = useConfigContext()
 
-  const { dispatch: userDispatch, showDesignPic, showScoreConfigWrapper  } = useUserContext()
+  const { dispatch: userDispatch, showDesignPic, showScoreConfigWrapper, showDiffDimension  } = useUserContext()
 
   const { rightNodes, showRightNodes, showErrorNodes, errorNodes, dispatch: nodesDispatch, showNodeTable, nodeTableInfo } = useNodeContext() 
 
@@ -78,8 +78,17 @@ const Center = () => {
   }) => {
     setDomTree(domNodes)
   }
-
   
+  
+
+  const handleShowDiffDimension = (checked: boolean) => {
+    userDispatch({
+      type: 'updateState',
+      payload: {
+        showDiffDimension: checked
+      }
+    })
+  }
 
   const handleShowScoreConfigWrapper = (checked: boolean) => {
     userDispatch({
@@ -111,22 +120,33 @@ const Center = () => {
         <Button style={{marginRight: '10px'}} disabled={domTree.length === 0} onClick={diffCheck}>对比</Button>
         <Button style={{marginRight: '10px'}} disabled={domTree.length === 0} onClick={showRightDoms}>显示正确UI</Button>
         <Button style={{marginRight: '10px'}} disabled={domTree.length === 0} onClick={showErrorDoms}>显示错误UI</Button>
+        <Switch style={{marginRight: '10px'}} checkedChildren="得分维度" unCheckedChildren="得分维度" checked={showDiffDimension}  onChange={handleShowDiffDimension}  />
         <Switch style={{marginRight: '10px'}} checkedChildren="分数配置" unCheckedChildren="分数配置" checked={showScoreConfigWrapper}  onChange={handleShowScoreConfigWrapper}  />
         <Switch style={{marginRight: '10px'}} checkedChildren="设计图" unCheckedChildren="设计图" checked={showDesignPic} onChange={handleShowDesignPic} />
       </div>
       <div className={styles.views}>
-        <div className={styles.pageContainer}>
-          {
-            baseConfig.pageLink ? 
-              <IframePage domLoad={domLoad} url={baseConfig.pageLink} ></IframePage>
-            : null
-          }
-          {
-            showRightNodes ? <OverPage domNodes={rightNodes}></OverPage> : null
-          }
-          {
-            showErrorNodes ? <OverPage domNodes={errorNodes}></OverPage> : null
-          }
+        <div className={styles.pageContainer} style={{
+          height: deviceConfig.height + 'px',
+          width: deviceConfig.width + 'px',
+        }}>
+          <div className={styles.clientHeader}></div>
+          <div className={styles.overPage} style={{
+            height: deviceConfig.height + 'px',
+            width: deviceConfig.width + 'px',
+            }} >
+            {
+              baseConfig.pageLink ? 
+                <IframePage domLoad={domLoad} url={baseConfig.pageLink} ></IframePage>
+              : null
+            }
+            {
+              showRightNodes ? <OverPage domNodes={rightNodes}></OverPage> : null
+            }
+            {
+              showErrorNodes ? <OverPage domNodes={errorNodes}></OverPage> : null
+            }
+          </div>
+
         </div>
         <div className={styles.nodeTable}>
           {
@@ -134,7 +154,7 @@ const Center = () => {
           }
         </div>
         {
-          showDesignPic ? <div className="preview">
+          showDesignPic ? <div className={styles.preview}>
             <Preview></Preview>
            </div> : null
         }

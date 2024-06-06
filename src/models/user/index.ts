@@ -11,7 +11,8 @@ export const initState = () => {
     userInfo: {},
     showLoginWrapper: false,
     showDesignPic: false,
-    showScoreConfigWrapper: false
+    showScoreConfigWrapper: false,
+    showDiffDimension: false
   }
 }
 

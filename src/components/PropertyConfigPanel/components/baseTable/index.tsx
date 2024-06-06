@@ -92,7 +92,7 @@ const BaseTable: React.FC = () => {
       <Form.Item>
         <Button type="primary" onClick={handleUpdate}>更新</Button>
       </Form.Item>
-  </Form>
+    </Form>
   )
 }
 
