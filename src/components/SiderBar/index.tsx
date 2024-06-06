@@ -6,7 +6,6 @@ import { useLocation } from 'umi';
 
 
 const SideBar = () => {
-
   const route  = useLocation()
   const { pathname } = route;
 

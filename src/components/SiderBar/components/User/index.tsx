@@ -4,21 +4,33 @@ import React, { useState } from 'react';
 import styles from './index.less'
 
 import { useUserContext } from '@/Hooks/models/useUserContext';
+import { useLogin } from '@/Hooks/useLogin';
 
 const User = () => {
+  
+  const { dispatch } = useUserContext();
+  const { isLogin } = useLogin();
 
-  const login = () => {}
-
-  const dd = useUserContext();
-
-  console.log('用户信息', dd)
-
+  const showLoginWrapper = () => {
+    dispatch({
+      type: 'updateState',
+      payload: {
+        showLoginWrapper: true
+      }
+    })
+  }
 
   return (
     <div className={styles.user}>
-      <div className={styles.headPhoto} onClick={login}>
-        <img style={{height: '100%', width: '100%' }} src='http://tankas.cn/public/defaultPhoto.png' alt="hh" />
-      </div>
+      {
+        isLogin ? 
+        <div className={styles.headPhoto}>
+          <img style={{height: '100%', width: '100%' }} src='http://tankas.cn/public/defaultPhoto.png' alt="hhs" />
+        </div> : 
+        <div className={styles.headPhoto} onClick={showLoginWrapper}>
+          <img style={{height: '100%', width: '100%' }} src='http://tankas.cn/public/defaultPhoto.png' alt="hhs" />
+        </div>
+      }
     </div>
   )
 }

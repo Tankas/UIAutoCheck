@@ -1,53 +1,54 @@
 import { useEffect, useContext } from 'react'
 import style from './index.less'
 import { isDev } from "@/utils/env"
-
+import { useConfigContext } from '@/Hooks/models/useConfigContext'
 
 
 const IframePage: React.FC<{url: string, domLoad: ({domNodes}: {
   domNodes: any[]
 }) => void}> = ({domLoad, url}) => {
   
-  // const { deviceConfig } = useContext(tableContext)
-  const deviceConfig = {
-    width: 375,
-    // width: 544,
-    height: 1000,
-    scale: 1,
-  }
+  const { deviceConfig } = useConfigContext()
 
   // 当接收到消息时的处理函数  
   function receiveMessage(event: any) {
-    // 可以通过event.origin来检查消息来源的域，增加安全性  
-    if (!event.origin.includes('9090')) { // 替换为子页面的实际来源域  
-      return;
+    if (!event.data) {
+      return
     }
 
-    if (isDev) {
-      const doms = event.source.sonDoms
-      domLoad({
-        domNodes: doms
-      })
-    } else {
-      const data = JSON.parse(event.data)
-      const { doms } = data
-      if (doms) {
+    try {
+      if (false) {
+        const doms = event.source.sonDoms
         domLoad({
           domNodes: doms
         })
+      } else {
+        const data = JSON.parse(event.data)
+        if (data?.type !== 'check') {
+          console.warn('sdk 接入错误')
+          return
+        }
+        const { doms } = data
+        if (doms) {
+          domLoad({
+            domNodes: doms
+          })
+        }
       }
+    } catch (er) {
+
     }
-    // 处理接收到的消息...  
+
   }
 
   useEffect(() => {
     // 添加事件监听器来接收消息  
     window.addEventListener("message", receiveMessage, false);  
-    console.log('监听自页面消息')
+
   }, [])
 
   const iframeLoad = () => {
-
+    console.log('iframeLoad')
   }
 
   return (

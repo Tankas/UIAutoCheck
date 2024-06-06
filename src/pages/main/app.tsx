@@ -1,13 +1,19 @@
 import Center from './components/Center'
-import PropertyConfigPanel from '@/components/PropertyConfigPanel'
-import ConfigPanel from './components/ConfigPanel'
-import Header from './components/Header'
+import { ConfigProvider } from 'antd'
+
+import ScoreConfig from '@/components/PropertyConfigPanel/components/ScoreConfig' 
+
+import { useUserContext } from '@/Hooks/models/useUserContext'
 
 const App = () => {
+  const { showScoreConfigWrapper } = useUserContext()
   return (
-    <div>
+    <ConfigProvider>
       <Center></Center>
-    </div>
+      {
+        showScoreConfigWrapper ? <ScoreConfig></ScoreConfig> : null
+      }
+    </ConfigProvider>
   )
 }
 

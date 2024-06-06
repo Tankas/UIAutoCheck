@@ -3,10 +3,15 @@ import { CloseOutlined } from '@ant-design/icons';
 import { Button, Card, Form, Input, Space, Typography } from 'antd';
 import LineChart from "./lineChart";
 
+import { useConfigContext } from '@/Hooks/models/useConfigContext'
+
 export type IProps = {
-  items: any[]
+
 }
-const WeightTable: React.FC<IProps> = ({items}) => {
+const WeightTable: React.FC<IProps> = () => {
+
+  const { weightConfig } = useConfigContext()
+  const items =  Object.values(weightConfig)
   const [form] = Form.useForm();
   return (
     <Form
@@ -16,7 +21,7 @@ const WeightTable: React.FC<IProps> = ({items}) => {
       name="dynamic_form_complex"
       style={{ maxWidth: 600 }}
       autoComplete="off"
-      initialValues={{ items: items }}
+      initialValues={{ items }}
     >
       <Form.List name="items">
         {(fields, { add, remove }) => (
@@ -40,14 +45,6 @@ const WeightTable: React.FC<IProps> = ({items}) => {
           </div>
         )}
       </Form.List>
-
-      <Form.Item shouldUpdate>
-        {() => (
-          <Button type="primary" onClick={() => {
-            console.log(form.getFieldsValue())
-          }}>update</Button>
-        )}
-      </Form.Item>
     </Form>
   );
 }

@@ -1,6 +1,6 @@
 
 import { useEffect, useState } from 'react';
-import { Flex, Button, message } from 'antd';
+import { Flex, Button, message, Switch } from 'antd';
 import styles from './index.less'
 import IframePage from "../IframePage"
 import OverPage from '../OverPage'
@@ -14,11 +14,15 @@ import { diff } from '@/utils/diff'
 import { useNodeContext } from '@/Hooks/models/useNodeContext'
 import DomTable from '../DomTable'
 import Preview from '../Preview';
+import cloneDeep from 'lodash/cloneDeep';
+
+import { useUserContext } from '@/Hooks/models/useUserContext';
 
 const Center = () => {
 
-  const { baseConfig, weightConfig } = useConfigContext()
+  const { baseConfig, weightConfig, scoreConfig } = useConfigContext()
 
+  const { dispatch: userDispatch, showDesignPic, showScoreConfigWrapper  } = useUserContext()
 
   const { rightNodes, showRightNodes, showErrorNodes, errorNodes, dispatch: nodesDispatch, showNodeTable, nodeTableInfo } = useNodeContext() 
 
@@ -29,8 +33,9 @@ const Center = () => {
   const canUse = domTree.length === 0;
 
   const diffCheck = async () => {
+    
     // 1 v 1 匹配
-    let { rightDoms, errorDoms } = diff(nodeTree, domTree, weightConfig)
+    let { rightDoms, errorDoms } = diff(cloneDeep(nodeTree), cloneDeep(domTree), weightConfig, scoreConfig)
 
     nodesDispatch({
       type: 'updateState',
@@ -74,17 +79,48 @@ const Center = () => {
     setDomTree(domNodes)
   }
 
+  
+
+  const handleShowScoreConfigWrapper = (checked: boolean) => {
+    userDispatch({
+      type: 'updateState',
+      payload: {
+        showScoreConfigWrapper: checked
+      }
+    })
+  }
+
+  const handleShowDesignPic = (checked: boolean) => {
+    userDispatch({
+      type: 'updateState',
+      payload: {
+        showDesignPic: checked
+      }
+    })
+  }
+
+  useEffect(() => {
+    if (!baseConfig.figmaLink) {
+      alert('配置链接')
+    }
+  }, [])
 
   return (
     <div>
       <div className={styles.operate}>
-        <Button style={{marginRight: '10px'}} disabled={domTree.length === 0} type="primary" onClick={diffCheck}>对比</Button>
-        <Button style={{marginRight: '10px'}} disabled={domTree.length === 0} type="primary" onClick={showRightDoms}>显示正确dom</Button>
-        <Button style={{marginRight: '10px'}} disabled={domTree.length === 0} type="primary" onClick={showErrorDoms}>显示错误dom</Button>
+        <Button style={{marginRight: '10px'}} disabled={domTree.length === 0} onClick={diffCheck}>对比</Button>
+        <Button style={{marginRight: '10px'}} disabled={domTree.length === 0} onClick={showRightDoms}>显示正确UI</Button>
+        <Button style={{marginRight: '10px'}} disabled={domTree.length === 0} onClick={showErrorDoms}>显示错误UI</Button>
+        <Switch style={{marginRight: '10px'}} checkedChildren="分数配置" unCheckedChildren="分数配置" checked={showScoreConfigWrapper}  onChange={handleShowScoreConfigWrapper}  />
+        <Switch style={{marginRight: '10px'}} checkedChildren="设计图" unCheckedChildren="设计图" checked={showDesignPic} onChange={handleShowDesignPic} />
       </div>
       <div className={styles.views}>
         <div className={styles.pageContainer}>
-          <IframePage domLoad={domLoad} url={baseConfig.pageLink} ></IframePage>
+          {
+            baseConfig.pageLink ? 
+              <IframePage domLoad={domLoad} url={baseConfig.pageLink} ></IframePage>
+            : null
+          }
           {
             showRightNodes ? <OverPage domNodes={rightNodes}></OverPage> : null
           }
@@ -97,9 +133,12 @@ const Center = () => {
             showNodeTable ? <DomTable node={nodeTableInfo}></DomTable> : null
           }
         </div>
-        <div className="preview">
-          {/* <Preview></Preview> */}
-        </div>
+        {
+          showDesignPic ? <div className="preview">
+            <Preview></Preview>
+           </div> : null
+        }
+        
       </div>
       
     </div>

@@ -8,6 +8,7 @@ export type IScoreInfo = {
   totalScore: number;
   fontSizeScore: number;
   fontWeightScore: number;
+  maxScore: number;
 }
 
 export type IDomNode = {

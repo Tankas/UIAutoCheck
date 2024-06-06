@@ -8,57 +8,59 @@ type FieldType = {
   pageLink?: string;
   figmaLink?: string;
   figmaRootName?: string;
+  clientToolBarHeight?: number;
 };
 
-export type Iprops = {
-  values: {
-    pageLink: string;
-    figmaLink: string;
-    figmaRootName: string;
-  }
-} | null
+const BaseTable: React.FC = () => {
+  const [form] = Form.useForm();
+  const { baseConfig, dispatch } = useConfigContext();
 
-const BaseTable: React.FC<Iprops> = () => {
 
-  const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-    console.log('Success:', values);
-  };
-  
-  const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
-    console.log('Failed:', errorInfo);
-  };
-
-  const onFieldsChange = (changedFields: any, allFields: any) => {
-    console.log('allFields', allFields)
-    console.log('changedFields', changedFields)
+  const checkFields = async () => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        await form.validateFields()
+        resolve(true)
+      } catch (err) {
+        reject(false)
+      }
+    })
+    
   }
 
-  const { baseConfig } = useConfigContext();
-
-
-  console.log('baseTable子组件更新', baseConfig)
-
-  const handleUpdate  = () => {
-
+  const handleUpdate  = async () => {
+    await checkFields()
+    
+    const { pageLink, figmaLink, figmaRootName, clientToolBarHeight } = form.getFieldsValue()
+    dispatch({
+      type: 'updateState',
+      payload: {
+        baseConfig: {
+          ...baseConfig,
+          pageLink,
+          figmaLink,
+          figmaRootName,
+          clientToolBarHeight: +clientToolBarHeight || baseConfig?.clientToolBarHeight || 88
+        }
+      }
+    })
   }
 
   
   return (
     <Form
+      form={form}
       name="basic"
       labelCol={{ span: 8 }}
       wrapperCol={{ span: 16 }}
       style={{ maxWidth: 600 }}
       initialValues={baseConfig}
-      onFinish={onFinish}
-      onFinishFailed={onFinishFailed}
-      onFieldsChange={onFieldsChange}
       autoComplete="off"
     >
       <Form.Item<FieldType>
         label="页面链接"
         name="pageLink"
-        rules={[{ required: true, message: '' }]}
+        rules={[{ required: true, type: 'url', message: '' }]}
       >
         <Input />
       </Form.Item>
@@ -66,7 +68,7 @@ const BaseTable: React.FC<Iprops> = () => {
       <Form.Item<FieldType>
         label="Figma链接"
         name="figmaLink"
-        rules={[{ required: true, message: '' }]}
+        rules={[{ required: true,type: 'url', message: '' }]}
       >
         <Input />
       </Form.Item>
@@ -78,8 +80,17 @@ const BaseTable: React.FC<Iprops> = () => {
       >
         <Input />
       </Form.Item>
+
+      <Form.Item<FieldType>
+        label="header 高度"
+        name="clientToolBarHeight"
+        rules={[{ required: true, message: '' }]}
+      >
+        <Input />
+      </Form.Item>
+
       <Form.Item>
-      <Button type="primary" onClick={handleUpdate}>update</Button>
+        <Button type="primary" onClick={handleUpdate}>更新</Button>
       </Form.Item>
   </Form>
   )

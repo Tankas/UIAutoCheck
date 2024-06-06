@@ -8,6 +8,9 @@ export const useNodeTree = (baseConfig: any): {
   const { figmaLink, figmaRootName, clientToolBarHeight } = baseConfig
   
   const getNodeTree = async () => {
+    if (!baseConfig.figmaLink) {
+      return
+    }
     let nodeList = await getNodeList({
       url: baseConfig.figmaLink,
       figmaRootName: baseConfig.figmaRootName,

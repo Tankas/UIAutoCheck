@@ -17,6 +17,7 @@ export const reducer = (state: any, { type, payload }: {
   type: string,
   payload: any
 }) => {
+
   switch (type) {
     case 'updateState':
       return {

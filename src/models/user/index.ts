@@ -8,7 +8,10 @@ export type IUserInfo = {
 
 export const initState = () => {
   return {
-    userInfo: {}
+    userInfo: {},
+    showLoginWrapper: false,
+    showDesignPic: false,
+    showScoreConfigWrapper: false
   }
 }
 
