@@ -1,28 +1,47 @@
 import { useEffect, useState } from 'react';
-import style from './index.less'
+import styles from './index.less'
 import { useConfigContext } from '@/Hooks/models/useConfigContext'
-
+import { useUserContext } from '@/Hooks/models/useUserContext';
 import { getImage, parseFigmaURL } from "@/utils/index";
 
 export default function Preview(props: any) {
 
+
+
   const { baseConfig } = useConfigContext()
+  const { showDesignPic } = useUserContext()
+
   const { figmaLink } = baseConfig
-  const [ figmaSrc, setFigmaSrc ] = useState('https://figma-alpha-api.s3.us-west-2.amazonaws.com/images/2d79c884-0336-4fe5-be3a-6d2195f520b2')
+  const [ figmaSrc, setFigmaSrc ] = useState('')
   
+  const aa = figmaLink;
+
+  const getFigmaSrc = async () => {
+    const { fileId, nodeId: nodeIds } = parseFigmaURL(figmaLink);
+    const { data: {images} } = await getImage({
+      fileId,
+      nodeIds
+    })
+    const src= images[String(nodeIds).replace('-', ':')]
+    setFigmaSrc(src)
+  }
+
+  console.log('figmaLink', figmaLink)
+
   useEffect(() => {
     if (figmaLink) {
-      const { fileId, nodeId: nodeIds } = parseFigmaURL(figmaLink);
-      getImage({
-        fileId,
-        nodeIds
-      })
+      getFigmaSrc()
     }
-  }, [figmaLink])
+  }, [aa])
+
+  
+  if (!showDesignPic) {
+    return null
+  }
 
   return (
     <>
-      <div className='content'>
+      <div className={styles.content}>
         {
           figmaSrc ? 
           <img src={figmaSrc}></img> : ''

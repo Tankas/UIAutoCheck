@@ -105,9 +105,9 @@ const defaultBaseConfig = {
   figmaRootName: '分享出去看到的页面',
   clientToolBarHeight: 88,
 }
-
-// defaultBaseConfig.pageLink = '';
-// defaultBaseConfig.figmaLink = '';
+defaultBaseConfig.figmaRootName = '';
+defaultBaseConfig.pageLink = '';
+defaultBaseConfig.figmaLink = '';
 
 export const initState = () => {
   return {

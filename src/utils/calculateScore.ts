@@ -1,4 +1,6 @@
 import { IFigmaNode, IDomNode, IScoreInfo } from '@/types/index'
+
+
 const getScoreByX = (points: any, value: any) => {
   for (let i = 0; i < points.length - 1; i++) {  
     // 找到 value 所在的 x 坐标段  

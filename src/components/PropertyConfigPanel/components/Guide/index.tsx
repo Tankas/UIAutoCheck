@@ -1,11 +1,10 @@
 import React from "react";
-
 const Guide: React.FC<any> = () => {
 
   const step = [
     {
       title: 'step 1',
-      content: '对接业务项目中,html中引入sdk'
+      content: '对接业务项目中,html中引入sdk. <script src="http://tankas.cn/check/ui-check-sdk.js"></script>'
     },
     {
       title: 'step 2',
@@ -25,12 +24,6 @@ const Guide: React.FC<any> = () => {
             )
           })
         }
-        <div className="scoreRule">
-          评分标准: 
-          1. 总得分不能低于 10
-          2. width, height 得分不能低于 各自项最高得分的1%
-          3. top left 得分不能低于 各自项最高得分的10%
-        </div>
       </div>
     </>
   )

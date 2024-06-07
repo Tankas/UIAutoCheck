@@ -1,8 +1,12 @@
 import React, { useContext } from "react";
 import type { FormProps } from 'antd';
-import { Button, Checkbox, Form, Input } from 'antd';
+import { QuestionCircleOutlined } from '@ant-design/icons';
+
+import { Button, Popover, Form, Input } from 'antd';
 import { useConfigContext } from '@/Hooks/models/useConfigContext'
 
+import tip1 from '@/assets/imgs/tip1.png'
+import tip2 from '@/assets/imgs/tip2.png'
 
 type FieldType = {
   pageLink?: string;
@@ -10,6 +14,57 @@ type FieldType = {
   figmaRootName?: string;
   clientToolBarHeight?: number;
 };
+
+const ClientToolBarHeightLabel = () => {
+
+  const content = (
+    <div>
+      <img style={{width: '600px'}} src={tip2} alt="" />
+    </div>
+  )
+
+  return (
+
+    <>
+      <Popover
+        content={content}
+        title="Title"
+        trigger="click"
+      >
+        <div className="">
+          header 高度
+          <QuestionCircleOutlined style={{ marginLeft: '5px' }} />
+        </div>
+      </Popover>
+    </>
+  )
+}
+
+const FigmaRootNameLabel = () => {
+
+  const content = (
+    <div>
+      <img style={{width: '600px'}} src={tip1} alt="" />
+    </div>
+  )
+
+  return (
+
+    <>
+      <Popover
+        content={content}
+        title="Title"
+        trigger="click"
+      >
+        <div className="">
+          figma根节点名称
+          <QuestionCircleOutlined style={{ marginLeft: '5px' }} />
+        </div>
+      </Popover>
+    </>
+  )
+}
+
 
 const BaseTable: React.FC = () => {
   const [form] = Form.useForm();
@@ -44,6 +99,7 @@ const BaseTable: React.FC = () => {
         }
       }
     })
+    alert('success')
   }
 
   
@@ -74,7 +130,7 @@ const BaseTable: React.FC = () => {
       </Form.Item>
 
       <Form.Item<FieldType>
-        label="跟节点名称"
+        label={<FigmaRootNameLabel></FigmaRootNameLabel>}
         name="figmaRootName"
         rules={[{ required: true, message: '' }]}
       >
@@ -82,7 +138,7 @@ const BaseTable: React.FC = () => {
       </Form.Item>
 
       <Form.Item<FieldType>
-        label="header 高度"
+        label={<ClientToolBarHeightLabel></ClientToolBarHeightLabel>}
         name="clientToolBarHeight"
         rules={[{ required: true, message: '' }]}
       >

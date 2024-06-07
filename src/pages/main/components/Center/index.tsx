@@ -1,24 +1,25 @@
 
 import { useEffect, useState } from 'react';
-import { Flex, Button, message, Switch } from 'antd';
+import { Flex, Button, message, Switch, Modal } from 'antd';
 import styles from './index.less'
 import IframePage from "../IframePage"
 import OverPage from '../OverPage'
-import { useConfigContext } from '@/Hooks/models/useConfigContext'
-
 
 import { IDomNode } from '@/types'
 import { useNodeTree } from '../../Hooks/useNodeTree'
 import { diff } from '@/utils/diff'
 
-import { useNodeContext } from '@/Hooks/models/useNodeContext'
+import DeviceConfig from '@/components/PropertyConfigPanel/components/DeviceConfig';
 import DomTable from '../DomTable'
 import Preview from '../Preview';
 import cloneDeep from 'lodash/cloneDeep';
-
+import { useNodeContext } from '@/Hooks/models/useNodeContext'
 import { useUserContext } from '@/Hooks/models/useUserContext';
+import { useConfigContext } from '@/Hooks/models/useConfigContext'
 
 const Center = () => {
+
+  const [messageApi, contextHolder] = message.useMessage();
 
   const { baseConfig, weightConfig, scoreConfig, deviceConfig } = useConfigContext()
 
@@ -110,21 +111,32 @@ const Center = () => {
 
   useEffect(() => {
     if (!baseConfig.figmaLink) {
-      alert('配置链接')
+      // alert('配置链接')
+      messageApi.info('未配置必要链接,去配置')
     }
   }, [])
 
+  const deviceStyle = {
+    height: deviceConfig.height + 'px',
+    width: deviceConfig.width + 'px',
+  }
+
   return (
     <div>
+      {contextHolder}
       <div className={styles.operate}>
         <Button style={{marginRight: '10px'}} disabled={domTree.length === 0} onClick={diffCheck}>对比</Button>
         <Button style={{marginRight: '10px'}} disabled={domTree.length === 0} onClick={showRightDoms}>显示正确UI</Button>
         <Button style={{marginRight: '10px'}} disabled={domTree.length === 0} onClick={showErrorDoms}>显示错误UI</Button>
         <Switch style={{marginRight: '10px'}} checkedChildren="得分维度" unCheckedChildren="得分维度" checked={showDiffDimension}  onChange={handleShowDiffDimension}  />
         <Switch style={{marginRight: '10px'}} checkedChildren="分数配置" unCheckedChildren="分数配置" checked={showScoreConfigWrapper}  onChange={handleShowScoreConfigWrapper}  />
-        <Switch style={{marginRight: '10px'}} checkedChildren="设计图" unCheckedChildren="设计图" checked={showDesignPic} onChange={handleShowDesignPic} />
+        <Switch style={{marginRight: '10px'}} checkedChildren="设计图" unCheckedChildren="设计图" checked={showDesignPic} onChange={handleShowDesignPic} disabled={!baseConfig.figmaLink} />
+      </div>
+      <div style={{width: deviceStyle.width}}>
+        <DeviceConfig></DeviceConfig>
       </div>
       <div className={styles.views}>
+
         <div className={styles.pageContainer} style={{
           height: deviceConfig.height + 'px',
           width: deviceConfig.width + 'px',
@@ -148,19 +160,19 @@ const Center = () => {
           </div>
 
         </div>
+        {/* 结果对比table */}
         <div className={styles.nodeTable}>
           {
             showNodeTable ? <DomTable node={nodeTableInfo}></DomTable> : null
           }
         </div>
-        {
-          showDesignPic ? <div className={styles.preview}>
-            <Preview></Preview>
-           </div> : null
-        }
+        {/* 设计稿 */}
+        <div className={styles.preview}>
+          <Preview></Preview>
+        </div>
         
       </div>
-      
+    
     </div>
   )
 }

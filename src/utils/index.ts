@@ -5,6 +5,23 @@ import axios from "axios";
 
 export const personalAccessToken = 'figd_dUNCJtlT6w5LC8o-3y1yTAvJiY5cHdx_E8OJNgiS'
 
+function extractUrlParts(urlStr) {
+  const url = new URL(urlStr);
+  // 获取路径部分
+  const pathSegments = url.pathname.split('/');
+  // 跳过空字符串和域名部分
+  let levelOne = '', levelTwo = '';
+  for (let i = 1; i < pathSegments.length; i++) {
+    if (levelOne === '') {
+      levelOne = pathSegments[i];
+    } else if (levelTwo === '') {
+      levelTwo = pathSegments[i];
+      break;
+    }
+  }
+  return { levelOne, levelTwo };
+}
+
 export function parseFigmaURL(url) {  
   // 使用URL类来解析传入的url参数  
   const parsedUrl = new URL(url);  
@@ -12,8 +29,10 @@ export function parseFigmaURL(url) {
   // 获取pathname部分，并分割成数组  
   const pathSegments = parsedUrl.pathname.split('/');  
   
+  const { levelOne: type } = extractUrlParts(url);
+  
   // 查找fileid，它应该在'file'段后面  
-  const fileIndex = pathSegments.indexOf('file');  
+  const fileIndex = pathSegments.indexOf(type);  
   let fileId = fileIndex >= 0 && fileIndex < pathSegments.length - 1 ? pathSegments[fileIndex + 1] : null;  
   
   // 获取查询参数中的node-id  
